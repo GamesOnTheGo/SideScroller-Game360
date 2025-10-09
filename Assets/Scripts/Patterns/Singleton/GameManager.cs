@@ -12,14 +12,14 @@ public class GameManager : MonoBehaviour
     private int score = 0;
     private float timeRemaining;
     private bool isGameActive = true;
-    private bool isPaused = false; // NEW: Pause state
+    private bool isPaused = false;
 
     void Awake()
     {
+        // Simple singleton - one per scene
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject);
         }
         else
         {
@@ -35,10 +35,21 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
+        // Debug current state
+        if (Input.GetKeyDown(KeyCode.T))
+        {
+            Debug.Log("=== DEBUG ===");
+            Debug.Log("Time: " + timeRemaining);
+            Debug.Log("Active: " + isGameActive);
+            Debug.Log("Paused: " + isPaused);
+            Debug.Log("TimeScale: " + Time.timeScale);
+        }
+
         // Only update timer when game is active AND not paused
         if (isGameActive && !isPaused)
         {
             timeRemaining -= Time.deltaTime;
+
             if (timeRemaining <= 0)
             {
                 timeRemaining = 0;
@@ -46,7 +57,7 @@ public class GameManager : MonoBehaviour
             }
         }
 
-        // Restart input (works when game is NOT active)
+        // Restart input
         if (!isGameActive && Input.GetKeyDown(KeyCode.R))
         {
             RestartGame();
@@ -55,13 +66,22 @@ public class GameManager : MonoBehaviour
 
     void InitializeGame()
     {
+        Debug.Log("=== INITIALIZING GAME ===");
+
+        // Reset all values
         score = 0;
         timeRemaining = levelTimeLimit;
         isGameActive = true;
         isPaused = false;
 
-        // Make sure game is unpaused
-        ResumeGame();
+        // CRITICAL: Force unpause
+        Time.timeScale = 1f;
+
+        Debug.Log("Score: " + score);
+        Debug.Log("Timer: " + timeRemaining);
+        Debug.Log("Active: " + isGameActive);
+        Debug.Log("Paused: " + isPaused);
+        Debug.Log("TimeScale: " + Time.timeScale);
 
         EventManager.TriggerEvent("OnGameStart");
     }
@@ -80,51 +100,51 @@ public class GameManager : MonoBehaviour
     public void LevelComplete()
     {
         isGameActive = false;
-        PauseGame(); // NEW: Pause when level complete
+        PauseGame();
         EventManager.TriggerEvent("OnLevelComplete", score);
     }
 
     void GameOver()
     {
+        Debug.Log("💀 GAME OVER");
         isGameActive = false;
-        PauseGame(); // NEW: Pause when game over
+        PauseGame();
         EventManager.TriggerEvent("OnGameOver", score);
     }
 
-    // NEW: Pause the entire game
     public void PauseGame()
     {
         isPaused = true;
-        Time.timeScale = 0f; // Freezes all time-based updates
-        Debug.Log("⏸️ Game Paused");
+        Time.timeScale = 0f;
+        Debug.Log("⏸️ Paused (TimeScale: " + Time.timeScale + ")");
     }
 
-    // NEW: Resume the game
     public void ResumeGame()
     {
         isPaused = false;
-        Time.timeScale = 1f; // Normal time flow
-        Debug.Log("▶️ Game Resumed");
+        Time.timeScale = 1f;
+        Debug.Log("▶️ Resumed (TimeScale: " + Time.timeScale + ")");
     }
 
     public void RestartGame()
     {
-        // Clear all events to prevent errors
+        Debug.Log("=== RESTARTING ===");
+
+        // Clear events
         EventManager.ClearAllEvents();
 
-        // Resume game before reloading
-        ResumeGame();
+        // CRITICAL: Reset time scale
+        Time.timeScale = 1f;
+        isPaused = false;
 
-        // Reset game state
-        isGameActive = true;
+        Debug.Log("TimeScale reset to: " + Time.timeScale);
 
-        // Reload the current scene
+        // Reload scene
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
-    // Getters
     public int GetScore() => score;
     public float GetTimeRemaining() => timeRemaining;
     public bool IsGameActive() => isGameActive;
-    public bool IsPaused() => isPaused; // NEW
+    public bool IsPaused() => isPaused;
 }

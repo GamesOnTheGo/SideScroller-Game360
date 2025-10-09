@@ -4,10 +4,7 @@ public class MovingState : PlayerState
 {
     public override void EnterState(PlayerController player)
     {
-        if (player.animator != null)
-        {
-            player.animator.Play("Run");
-        }
+        TryPlayAnimation(player, "Run");
     }
 
     public override void UpdateState(PlayerController player)
@@ -41,4 +38,21 @@ public class MovingState : PlayerState
     public override void ExitState(PlayerController player) { }
 
     public override string GetStateName() => "Moving";
+
+    private void TryPlayAnimation(PlayerController player, string animName)
+    {
+        if (player.animator != null &&
+            player.animator.runtimeAnimatorController != null &&
+            player.animator.isActiveAndEnabled)
+        {
+            try
+            {
+                player.animator.Play(animName);
+            }
+            catch
+            {
+                // Animation doesn't exist - continue without it
+            }
+        }
+    }
 }

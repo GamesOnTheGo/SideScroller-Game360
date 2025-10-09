@@ -13,13 +13,14 @@ public class AudioManager : MonoBehaviour
     public AudioClip shootSound;
     public AudioClip enemyDefeatedSound;
     public AudioClip powerUpSound;
+    public AudioClip coinSound;
 
     void Awake()
     {
+        // Simple singleton - one per scene
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject);
         }
         else
         {
@@ -45,15 +46,16 @@ public class AudioManager : MonoBehaviour
         PlaySFX(enemyDefeatedSound);
     }
 
-    void OnPowerUpCollected()
+    public void OnPowerUpCollected()
     {
         PlaySFX(powerUpSound);
     }
 
     public void PlayJumpSound() => PlaySFX(jumpSound);
     public void PlayShootSound() => PlaySFX(shootSound);
+    public void PlayCoinSound() => PlaySFX(coinSound);
 
-    void PlaySFX(AudioClip clip)
+    public void PlaySFX(AudioClip clip)
     {
         if (clip != null && sfxSource != null)
         {
