@@ -14,6 +14,13 @@ public class Enemy : MonoBehaviour
 
     void Update()
     {
+        // NEW: Don't move when paused
+        if (GameManager.Instance != null && GameManager.Instance.IsPaused())
+        {
+            return;
+        }
+
+        // Move enemy
         transform.position += Vector3.right * direction * moveSpeed * Time.deltaTime;
 
         if (Mathf.Abs(transform.position.x - startPos.x) > 3f)

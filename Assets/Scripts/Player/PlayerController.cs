@@ -32,6 +32,12 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
+        // NEW: Only update if game is not paused
+        if (GameManager.Instance != null && GameManager.Instance.IsPaused())
+        {
+            return; // Skip all input when paused
+        }
+
         if (currentState != null)
         {
             currentState.UpdateState(this);
