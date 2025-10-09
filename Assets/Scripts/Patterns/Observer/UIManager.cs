@@ -1,12 +1,13 @@
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class UIManager : MonoBehaviour
 {
     [Header("UI Elements")]
-    public Text scoreText;
-    public Text timerText;
-    public Text stateText;
+    public TMP_Text scoreText;
+    public TMP_Text timerText;
+    public TMP_Text stateText;
     public GameObject gameOverPanel;
     public GameObject victoryPanel;
 
