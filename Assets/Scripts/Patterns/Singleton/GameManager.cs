@@ -104,7 +104,7 @@ public class GameManager : MonoBehaviour
         EventManager.TriggerEvent("OnLevelComplete", score);
     }
 
-    void GameOver()
+    public void GameOver()
     {
         Debug.Log("💀 GAME OVER");
         isGameActive = false;

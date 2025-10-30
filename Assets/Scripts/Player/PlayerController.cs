@@ -1,3 +1,6 @@
+﻿
+using System.IO;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
@@ -5,6 +8,11 @@ public class PlayerController : MonoBehaviour
     [Header("Movement")]
     public float moveSpeed = 5f;
     public float jumpForce = 10f;
+
+    [Header("Double Jump")]
+    public bool canDoubleJump = true;
+    public float doubleJumpForce = 8f;
+    private int jumpsRemaining = 2;
 
     [Header("Combat")]
     public GameObject bulletPrefab;
@@ -21,6 +29,14 @@ public class PlayerController : MonoBehaviour
 
     private PlayerState currentState;
 
+    [Header("Dash")]
+    public bool canDash = true;
+    public float dashSpeed = 20f;
+    public float dashDuration= 0.2f;
+    public KeyCode dashKey = KeyCode.LeftShift;
+    public float defaultGravityScale;
+
+
     void Start()
     {
         if (rb == null) rb = GetComponent<Rigidbody2D>();
@@ -28,14 +44,29 @@ public class PlayerController : MonoBehaviour
         if (spriteRenderer == null) spriteRenderer = GetComponent<SpriteRenderer>();
 
         ChangeState(new IdleState());
+
+        Debug.Log("=== DOUBLE JUMP SETUP ===");
+        Debug.Log("Can Double Jump: " + canDoubleJump);
+        Debug.Log("Jumps Remaining: " + jumpsRemaining);
     }
 
     void Update()
     {
-        // NEW: Only update if game is not paused
         if (GameManager.Instance != null && GameManager.Instance.IsPaused())
         {
-            return; // Skip all input when paused
+            return;
+        }
+
+        // Reset jump count when grounded
+        if (IsGrounded() && rb.linearVelocity.y <= 0)
+        {
+            int oldJumps = jumpsRemaining;
+            jumpsRemaining = canDoubleJump ? 2 : 1;
+
+            if (oldJumps != jumpsRemaining)
+            {
+                Debug.Log("🔄 Jumps Reset: " + jumpsRemaining + " (Grounded)");
+            }
         }
 
         if (currentState != null)
@@ -62,6 +93,49 @@ public class PlayerController : MonoBehaviour
         return Physics2D.OverlapCircle(groundCheck.position, 0.2f, groundLayer);
     }
 
+    public bool CanJump()
+    {
+        bool can = jumpsRemaining > 0;
+        Debug.Log("CanJump? " + can + " (Jumps: " + jumpsRemaining + ", Grounded: " + IsGrounded() + ")");
+        return can;
+    }
+
+    public void PerformJump()
+    {
+        if (jumpsRemaining <= 0)
+        {
+            Debug.Log("❌ Can't jump - no jumps left!");
+            return;
+        }
+
+        jumpsRemaining--;
+
+        // Use different force for double jump
+        float force = (jumpsRemaining == 0 && canDoubleJump) ? doubleJumpForce : jumpForce;
+
+        Vector2 velocity = rb.linearVelocity;
+        velocity.y = force;
+        rb.linearVelocity = velocity;
+
+        Debug.Log("✅ JUMPED! Jumps left: " + jumpsRemaining + " | Force: " + force);
+
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlayJumpSound();
+        }
+
+        if (jumpsRemaining == 0 && canDoubleJump)
+        {
+            Debug.Log("🎯 DOUBLE JUMP!");
+            EventManager.TriggerEvent("OnDoubleJump");
+        }
+    }
+
+    public int GetJumpsRemaining()
+    {
+        return jumpsRemaining;
+    }
+
     public void Fire()
     {
         if (bulletPrefab != null && firePoint != null)
@@ -80,6 +154,7 @@ public class PlayerController : MonoBehaviour
     void Respawn()
     {
         transform.position = GameManager.Instance.spawnPoint;
+        jumpsRemaining = canDoubleJump ? 2 : 1;
         ChangeState(new IdleState());
     }
 
