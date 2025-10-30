@@ -36,6 +36,10 @@ public class PlayerController : MonoBehaviour
     public KeyCode dashKey = KeyCode.LeftShift;
     public float defaultGravityScale;
 
+    private void Awake()
+    {
+        
+    }
 
     void Start()
     {
@@ -48,6 +52,7 @@ public class PlayerController : MonoBehaviour
         Debug.Log("=== DOUBLE JUMP SETUP ===");
         Debug.Log("Can Double Jump: " + canDoubleJump);
         Debug.Log("Jumps Remaining: " + jumpsRemaining);
+        defaultGravityScale = rb.gravityScale;
     }
 
     void Update()
@@ -65,7 +70,7 @@ public class PlayerController : MonoBehaviour
 
             if (oldJumps != jumpsRemaining)
             {
-                Debug.Log("🔄 Jumps Reset: " + jumpsRemaining + " (Grounded)");
+                Debug.Log("Jumps Reset: " + jumpsRemaining + " (Grounded)");
             }
         }
 
@@ -73,6 +78,20 @@ public class PlayerController : MonoBehaviour
         {
             currentState.UpdateState(this);
         }
+
+       if(Input.GetKeyDown(dashKey) && canDash)
+        {
+            ChangeState(new DashingState());
+        }
+    }
+
+    public void PerformDash()
+    {
+        if (!canDash)
+        {
+            return;
+        }
+        ChangeState(new DashingState());
     }
 
     public void ChangeState(PlayerState newState)
@@ -104,7 +123,7 @@ public class PlayerController : MonoBehaviour
     {
         if (jumpsRemaining <= 0)
         {
-            Debug.Log("❌ Can't jump - no jumps left!");
+            Debug.Log("Can't jump - no jumps left!");
             return;
         }
 
@@ -117,7 +136,7 @@ public class PlayerController : MonoBehaviour
         velocity.y = force;
         rb.linearVelocity = velocity;
 
-        Debug.Log("✅ JUMPED! Jumps left: " + jumpsRemaining + " | Force: " + force);
+        Debug.Log("JUMPED! Jumps left: " + jumpsRemaining + " | Force: " + force);
 
         if (AudioManager.Instance != null)
         {
@@ -126,7 +145,7 @@ public class PlayerController : MonoBehaviour
 
         if (jumpsRemaining == 0 && canDoubleJump)
         {
-            Debug.Log("🎯 DOUBLE JUMP!");
+            Debug.Log("DOUBLE JUMP!");
             EventManager.TriggerEvent("OnDoubleJump");
         }
     }
@@ -156,6 +175,7 @@ public class PlayerController : MonoBehaviour
         transform.position = GameManager.Instance.spawnPoint;
         jumpsRemaining = canDoubleJump ? 2 : 1;
         ChangeState(new IdleState());
+        rb.linearVelocity = Vector2.zero;
     }
 
     public string GetCurrentStateName()

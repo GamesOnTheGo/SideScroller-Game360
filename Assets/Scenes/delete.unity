@@ -1232,6 +1232,7 @@ GameObject:
   - component: {fileID: 305854045}
   - component: {fileID: 305854044}
   - component: {fileID: 305854043}
+  - component: {fileID: 305854046}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: Untagged
@@ -1313,6 +1314,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &305854046
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 305854042}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e0b63224c92bfae4cbfa1bb887563b48, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Player: {fileID: 1257569364}
 --- !u!1 &306574059
 GameObject:
   m_ObjectHideFlags: 0
@@ -4845,7 +4859,7 @@ Rigidbody2D:
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 0
-  m_Constraints: 0
+  m_Constraints: 4
 --- !u!61 &1257569369
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -4917,6 +4931,11 @@ MonoBehaviour:
   rb: {fileID: 0}
   animator: {fileID: 0}
   spriteRenderer: {fileID: 0}
+  canDash: 1
+  dashSpeed: 20
+  dashDuration: 0.2
+  dashKey: 304
+  defaultGravityScale: 0
 --- !u!1 &1258169483
 GameObject:
   m_ObjectHideFlags: 0

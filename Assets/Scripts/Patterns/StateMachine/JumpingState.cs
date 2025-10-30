@@ -1,73 +1,4 @@
-﻿/*using UnityEngine;
-
-public class JumpingState : PlayerState
-{
-    public override void EnterState(PlayerController player)
-    {
-        TryPlayAnimation(player, "Jump");
-
-        Vector2 velocity = player.rb.linearVelocity;
-        velocity.y = player.jumpForce;
-        player.rb.linearVelocity = velocity;
-
-        if (AudioManager.Instance != null)
-        {
-            AudioManager.Instance.PlayJumpSound();
-        }
-    }
-
-    public override void UpdateState(PlayerController player)
-    {
-        float horizontal = Input.GetAxis("Horizontal");
-        Vector2 velocity = player.rb.linearVelocity;
-        velocity.x = horizontal * player.moveSpeed;
-        player.rb.linearVelocity = velocity;
-
-        if (horizontal < 0)
-            player.spriteRenderer.flipX = true;
-        else if (horizontal > 0)
-            player.spriteRenderer.flipX = false;
-
-        if (player.IsGrounded() && player.rb.linearVelocity.y <= 0)
-        {
-            if (Mathf.Abs(Input.GetAxis("Horizontal")) > 0.1f)
-            {
-                player.ChangeState(new MovingState());
-            }
-            else
-            {
-                player.ChangeState(new IdleState());
-            }
-        }
-
-        if (Input.GetKeyDown(KeyCode.F))
-        {
-            player.Fire();
-        }
-    }
-
-    public override void ExitState(PlayerController player) { }
-
-    public override string GetStateName() => "Jumping";
-
-    private void TryPlayAnimation(PlayerController player, string animName)
-    {
-        if (player.animator != null &&
-            player.animator.runtimeAnimatorController != null &&
-            player.animator.isActiveAndEnabled)
-        {
-            try
-            {
-                player.animator.Play(animName);
-            }
-            catch
-            {
-                // Animation doesn't exist - continue without it
-            }
-        }
-    }
-}*/
-
+﻿
 using UnityEngine;
 
 public class JumpingState : PlayerState
@@ -75,7 +6,7 @@ public class JumpingState : PlayerState
     public override void EnterState(PlayerController player)
     {
         TryPlayAnimation(player, "Jump");
-        Debug.Log("▶️ Entered JUMPING State");
+        Debug.Log("Entered JUMPING State");
     }
 
     public override void UpdateState(PlayerController player)
@@ -90,26 +21,36 @@ public class JumpingState : PlayerState
         else if (horizontal > 0)
             player.spriteRenderer.flipX = false;
 
+
+
+        if (Input.GetKeyDown(player.dashKey) && player.canDash)
+        {
+            player.PerformDash();
+            return; // Exit to DashingState immediately
+        }
+
+
+
         // DOUBLE JUMP CHECK
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            Debug.Log("🎮 SPACE pressed in air!");
+            Debug.Log("SPACE pressed in air!");
 
             if (player.CanJump())
             {
-                Debug.Log("✅ Performing double jump!");
+                Debug.Log("Performing double jump!");
                 player.PerformJump();
             }
             else
             {
-                Debug.Log("❌ Can't double jump - no jumps left");
+                Debug.Log(" Can't double jump - no jumps left");
             }
         }
 
         // Land on ground
         if (player.IsGrounded() && player.rb.linearVelocity.y <= 0)
         {
-            Debug.Log("🏁 Landed!");
+            Debug.Log("Landed!");
             if (Mathf.Abs(Input.GetAxis("Horizontal")) > 0.1f)
             {
                 player.ChangeState(new MovingState());
@@ -128,7 +69,7 @@ public class JumpingState : PlayerState
 
     public override void ExitState(PlayerController player)
     {
-        Debug.Log("⏹️ Exited JUMPING State");
+        Debug.Log("Exited JUMPING State");
     }
 
     public override string GetStateName() => "Jumping";
